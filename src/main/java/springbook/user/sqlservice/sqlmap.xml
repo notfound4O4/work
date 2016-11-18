@@ -1,0 +1,9 @@
+<sqlmap>
+	<sql key="userAdd" value="insert into users(id, name, password, level, login, recommend, email) values(?, ?, ?, ?, ?, ?, ?)"></sql>
+	<sql key="userGet" value="select * from users where id = ?"></sql>
+	<sql key="userGetAll" value="select * from users order by id"></sql>
+	<sql key="userDeleteAll" value="delete from users"></sql>
+	<sql key="userDelete" value="delete from users where id = ?"></sql>
+	<sql key="userGetCount" value="select count(*) from users"></sql>
+	<sql key="userUpdate" value="update users set name= ?, password = ?, level = ?, login = ?, recommend = ?, email = ? where id = ?"></sql>
+</sqlmap>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						http://www.springframework.org/schema/aop
+						http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+						">
+
+	
+	<context:annotation-config />
+
+	<bean id="userService" class="springbook.user.service.UserServiceImpl">
+		<property name="userDao" ref="userDao"></property>
+		<property name="mailSender" ref="mailSender"></property>
+	</bean>
+	
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:advisor advice-ref="transactionAdvice" pointcut="bean(*Service)" />
+		<!-- 성격이 다른 배치 작업용 클래스 등에는 별도로 정의 <aop:advisor advice-ref="batchTxAdvice" 
+			pointcut="execution(a.b.*BatchJob.*.(..))" /> -->
+	</aop:config>
+
+	<bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="advice" ref="transactionAdvice"></property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<bean id="mailSender" class="springbook.user.service.DummyMailSender"></bean>
+
+	<bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="sqlService" ref="sqlService"></property>
+	</bean>
+	
+	<bean id="sqlService" class="springbook.user.sqlservice.DefaultSqlService">
+		<!-- 
+		<property name="sqlReader" ref="sqlReader" ></property>
+		<property name="sqlRegistry" ref="sqlRegistry"></property>
+		 -->
+	</bean>
+	
+	<bean id="sqlReader" class="springbook.user.sqlservice.JaxbXmlSqlReader">
+		<property name="sqlmapFile" value="sqlmap.xml"></property>
+	</bean>
+	
+	<bean id="sqlRegistry" class="springbook.user.sqlservice.HashMapSqlRegistry">
+	</bean>
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="url"
+			value="jdbc:mysql://localhost/work_test?characterEncoding=UTF-8"></property>
+		<property name="username" value="user1"></property>
+		<property name="password" value="1234"></property>
+	</bean>
+
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserService" parent="userService" />
+
+</beans>		
