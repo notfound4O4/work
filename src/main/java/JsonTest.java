@@ -42,7 +42,10 @@ public class JsonTest {
 				out += line;
 			}
 			System.out.println(out.replaceAll(" ", ""));
-
+			
+			
+			//aaa
+			
 			// 닫기
 			osw.close();
 			br.close();
